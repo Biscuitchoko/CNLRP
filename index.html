@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CNLRP - Serveur Roleplay</title>
+<style>
+  /* Reset */
+  * {
+    margin:0; padding:0; box-sizing:border-box;
+    font-family: 'Orbitron', monospace, sans-serif;
+  }
+  body {
+    background: #070b16;
+    color: #cbd5e1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    transition: background 0.4s ease, color 0.4s ease;
+  }
+  a {
+    color: #5a99c7;
+    text-decoration: none;
+  }
+  a:hover {
+    text-shadow: 0 0 6px #5a99c7;
+  }
+  header {
+    position: relative;
+    background: url('banner.png') center/cover no-repeat;
+    height: 320px;
+    color: #5a99c7;
+    text-shadow: 0 0 8px #5a99c7;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+  }
+  header::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(90, 153, 199, 0.3);
+    mix-blend-mode: screen;
+    filter: blur(25px);
+  }
+  header h1 {
+    position: relative;
+    font-size: 3rem;
+    letter-spacing: 0.2em;
+    animation: flicker 3s infinite alternate;
+  }
+  header p {
+    position: relative;
+    font-size: 1.3rem;
+    margin-top: 0.4em;
+  }
+  @keyframes flicker {
+    0%, 100% { text-shadow: 0 0 8px #5a99c7, 0 0 16px #5a99c7; }
+    50% { text-shadow: 0 0 12px #5a99c7, 0 0 22px #5a99c7; }
+  }
+  nav {
+    position: fixed;
+    top: 20px; right: 20px;
+    background: rgba(12, 21, 34, 0.85);
+    border: 1px solid #5a99c7;
+    border-radius: 10px;
+    padding: 8px 12px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    z-index: 1000;
+  }
+  nav a {
+    padding: 6px 12px;
+    border-radius: 5px;
+    transition: background 0.3s ease;
+    font-weight: 600;
+    color: #cbd5e1;
+    cursor: pointer;
+  }
+  nav a:hover, nav a.active {
+    background: #5a99c733;
+  }
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 46px;
+    height: 24px;
+  }
+  .switch input {
+    opacity: 0;
+    width: 0; height: 0;
+  }
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    background-color: #10243c;
+    border-radius: 34px;
+    top: 0; left: 0;
+    right: 0; bottom: 0;
+    transition: .4s;
+    border: 1px solid #5a99c7;
+    box-shadow: 0 0 8px #5a99c7;
+  }
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: #5a99c7;
+    border-radius: 50%;
+    transition: .4s;
+    box-shadow: 0 0 8px #5a99c7;
+  }
+  input:checked + .slider {
+    background-color: #457bc4;
+    box-shadow: 0 0 15px #457bc4;
+  }
+  input:checked + .slider:before {
+    transform: translateX(22px);
+    background-color: #457bc4;
+    box-shadow: 0 0 15px #457bc4;
+  }
+  main {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 0 20px 50px;
+  }
+  section {
+    margin-bottom: 40px;
+  }
+  section h2 {
+    font-size: 2rem;
+    margin-bottom: 16px;
+    color: #5a99c7;
+    text-shadow: 0 0 6px #5a99c7;
+  }
+  section p {
+    font-size: 1.1rem;
+    line-height: 1.4;
+    margin-bottom: 20px;
+  }
+  .stars {
+    display: inline-flex;
+    gap: 10px;
+    font-size: 2.5rem;
+    user-select: none;
+  }
+  .stars span {
+    cursor: pointer;
+    color: #0f1420;
+    text-shadow: none;
+    transition: color 0.3s ease, text-shadow 0.3s ease;
+  }
+  .stars span.active,
+  .stars span:hover,
+  .stars span:hover ~ span {
+    color: #5a99c7;
+    text-shadow: 0 0 10px #5a99c7;
+    animation: pulseStar 1.2s infinite alternate;
+  }
+  @keyframes pulseStar {
+    0% { text-shadow: 0 0 10px #5a99c7; }
+    100% { text-shadow: 0 0 20px #5a99c7; }
+  }
+  form {
+    background: #121d33;
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid #5a99c7;
+  }
+  label {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+    cursor: pointer;
+  }
+  input[type="radio"] {
+    margin-right: 8px;
+    accent-color: #5a99c7;
+  }
+  button {
+    margin-top: 10px;
+    background: #5a99c7;
+    border: none;
+    color: #0f1420;
+    font-weight: bold;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    box-shadow: 0 0 10px #5a99c7;
+  }
+  button:hover {
+    background: #457bc4;
+    box-shadow: 0 0 15px #457bc4;
+  }
+  #resultats {
+    margin-top: 20px;
+    font-size: 1.2rem;
+    color: #5a99c7;
+  }
+  /* Light mode */
+  body.light {
+    background: #e6ebf2;
+    color: #273240;
+  }
+  body.light a {
+    color: #457bc4;
+  }
+  body.light a:hover {
+    text-shadow: none;
+  }
+  body.light header {
+    color: #457bc4;
+    text-shadow: none;
+  }
+  body.light header::before {
+    background: rgba(69, 123, 196, 0.3);
+  }
+  body.light nav {
+    background: #d9e1ec;
+    border-color: #457bc4;
+  }
+  body.light nav a {
+    color: #457bc4;
+  }
+  body.light nav a:hover, body.light nav a.active {
+    background: #457bc422;
+  }
+  body.light form {
+    background: #d0d7e5;
+    border-color: #457bc4;
+  }
+  /* Responsive */
+  @media (max-width: 700px) {
+    nav {
+      top: auto;
+      bottom: 20px;
+      right: 50%;
+      transform: translateX(50%);
+      gap: 8px;
+      border-radius: 40px;
+      padding: 6px 14px;
+      font-size: 0.9rem;
+      flex-wrap: wrap;
+    }
+  }
+</style>
+</head>
+<body>
+<nav>
+  <a href="#" id="link-home" class="active">Accueil</a>
+  <a href="#" id="link-poll">Sondage</a>
+  <label class="switch" title="Mode sombre/clair">
+    <input type="checkbox" id="themeToggle" />
+    <span class="slider"></span>
+  </label>
+</nav>
+
+<header>
+  <h1>CNLRP</h1>
+  <p>Serveur Roleplay MAPLE COUNTY - Communauté</p>
+</header>
+
+<main>
+  <!-- Page Accueil -->
+  <section id="page-home">
+    <h2>Bienvenue sur CNLRP</h2>
+    <p>Un serveur roleplay immersif sur Maple County avec une communauté active et passionnée.</p>
+    <h3>Donne-nous ta note !</h3>
+    <div class="stars" id="stars">
+      <span data-value="1" title="1 étoile">★</span>
+      <span data-value="2" title="2 étoiles">★</span>
+      <span data-value="3" title="3 étoiles">★</span>
+      <span data-value="4" title="4 étoiles">★</span>
+      <span data-value="5" title="5 étoiles">★</span>
+    </div>
+    <p id="noteText" style="margin-top:10px; font-weight:bold;"></p>
+  </section>
+
+  <!-- Page Sondage -->
+  <section id="page-poll" style="display:none;">
+    <h2>Sondage CNLRP</h2>
+    <form id="pollForm">
+      <p>Quelle est ta faction préférée ?</p>
+      <label><input type="radio" name="faction" value="Police" /> Police</label>
+      <label><input type="radio" name="faction" value="Civils" /> Civils</label>
+      <label><input type="radio" name="faction" value="Gang" /> Gang</label>
+      <label><input type="radio" name="faction" value="Médicaux" /> Médicaux</label>
+      <button type="submit" id="voteBtn">Voter</button>
+    </form>
+    <div id="resultats"></div>
+  </section>
+</main>
+
+<script>
+  // Navigation pages
+  const linkHome = document.getElementById('link-home');
+  const linkPoll = document.getElementById('link-poll');
+  const pageHome = document.getElementById('page-home');
+  const pagePoll = document.getElementById('page-poll');
+
+  function setActivePage(page) {
+    if(page === 'home') {
+      pageHome.style.display = 'block';
+      pagePoll.style.display = 'none';
+      linkHome.classList.add('active');
+      linkPoll.classList.remove('active');
+    } else {
+      pageHome.style.display = 'none';
+      pagePoll.style.display = 'block';
+      linkHome.classList.remove('active');
+      linkPoll.classList.add('active');
+    }
+  }
+
+  linkHome.addEventListener('click', e => {
+    e.preventDefault();
+    setActivePage('home');
+  });
+  linkPoll.addEventListener('click', e => {
+    e.preventDefault();
+    setActivePage('poll');
+  });
+
+  // Mode sombre / clair avec sauvegarde localStorage
+  const toggle = document.getElementById('themeToggle');
+  const bodyEl = document.body;
+
+  // Charger thème sauvegardé
+  const savedTheme = localStorage.getItem('cnlrpTheme');
+  if(savedTheme === 'light') {
+    bodyEl.classList.add('light');
+    toggle.checked = true;
+  }
+
+  toggle.addEventListener('change', () => {
+    if (toggle.checked) {
+      bodyEl.classList.add('light');
+      localStorage.setItem('cnlrpTheme', 'light');
+    } else {
+      bodyEl.classList.remove('light');
+      localStorage.setItem('cnlrpTheme', 'dark');
+    }
+  });
+
+  // Notation étoiles
+  const stars = document.querySelectorAll('#stars span');
+  const noteText = document.getElementById('noteText');
+  let note = 0;
+  stars.forEach(star => {
+    star.addEventListener('mouseenter', () => {
+      const val = +star.getAttribute('data-value');
+      highlightStars(val);
+      noteText.textContent = `Note : ${val} / 5`;
+    });
+    star.addEventListener('mouseleave', () => {
+      highlightStars(note);
+      noteText.textContent = note === 0 ? '' : `Note : ${note} / 5`;
+    });
+    star.addEventListener('click', () => {
+      note = +star.getAttribute('data-value');
+      highlightStars(note);
+      noteText.textContent = `Merci pour ta note : ${note} / 5`;
+    });
+  });
+  function highlightStars(num) {
+    stars.forEach(s => {
+      const val = +s.getAttribute('data-value');
+      if (val <= num) s.classList.add('active');
+      else s.classList.remove('active');
+    });
+  }
+
+  // Sondage stockage localStorage simple
+  const pollForm = document.getElementById('pollForm');
+  const resultats = document.getElementById('resultats');
+
+  function getPollResults() {
+    let results = localStorage.getItem('cnlrpPoll');
+    return results ? JSON.parse(results) : { Police:0, Civils:0, Gang:0, Médicaux:0 };
+  }
+  function savePollResults(results) {
+    localStorage.setItem('cnlrpPoll', JSON.stringify(results));
+  }
+  function updatePollDisplay() {
+    const results = getPollResults();
+    const total = Object.values(results).reduce((a,b) => a+b, 0);
+    if(total === 0) {
+      resultats.textContent = 'Aucun vote pour le moment.';
+      return;
+    }
+    let html = '<ul>';
+    for(const [key,val] of Object.entries(results)) {
+      const percent = ((val / total) * 100).toFixed(1);
+      html += `<li>${key}: ${val} vote(s) — ${percent}%</li>`;
+    }
+    html += '</ul>';
+    resultats.innerHTML = html;
+  }
+
+  pollForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const formData = new FormData(pollForm);
+    const choice = formData.get('faction');
+    if(!choice) {
+      alert('Merci de choisir une faction avant de voter.');
+      return;
+    }
+    let results = getPollResults();
+    results[choice] = (results[choice] || 0) + 1;
+    savePollResults(results);
+    updatePollDisplay();
+    pollForm.reset();
+  });
+
+  // Affiche résultats au chargement
+  updatePollDisplay();
+</script>
+</body>
+</html>
